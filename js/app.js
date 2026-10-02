@@ -43,6 +43,9 @@ const state = {
   byId: new Map(),
   tags: [],
   tagBySlug: new Map(),
+  view: "clusters",
+  clusterSort: "count",
+  problemSort: "id",
   query: "",
   tagQuery: "",
   diffs: new Set(DIFFS),
@@ -117,6 +120,9 @@ function selectedTagNames() {
 
 function readHash() {
   const params = new URLSearchParams(location.hash.replace(/^#/, ""));
+  if (["clusters", "problems", "map"].includes(params.get("view"))) state.view = params.get("view");
+  if (["count", "name", "hard", "small"].includes(params.get("cs"))) state.clusterSort = params.get("cs");
+  if (["id", "title", "difficulty", "hard"].includes(params.get("ps"))) state.problemSort = params.get("ps");
   if (params.has("q")) state.query = params.get("q") || "";
   if (params.has("diff")) {
     const next = (params.get("diff") || "").split(",").filter((diff) => DIFFS.includes(diff));
@@ -131,6 +137,9 @@ function readHash() {
 
 function writeHash() {
   const params = new URLSearchParams();
+  if (state.view !== "clusters") params.set("view", state.view);
+  if (state.clusterSort !== "count") params.set("cs", state.clusterSort);
+  if (state.problemSort !== "id") params.set("ps", state.problemSort);
   if (state.query.trim()) params.set("q", state.query.trim());
   if (state.diffs.size < DIFFS.length) params.set("diff", [...state.diffs].join(","));
   if (state.tagsSelected.size) params.set("tags", [...state.tagsSelected].join(","));
@@ -249,6 +258,8 @@ function refresh({ refit = false, hash = true } = {}) {
   updateTagCounts();
   syncControls();
   updateStatus();
+  renderBrowser();
+  if (state.view === "map") resize();
   if (hash) writeHash();
   if (refit) fit(state.highlighted.length ? state.highlighted : state.base);
   else draw();
@@ -707,6 +718,7 @@ function setActive(problem) {
 }
 
 function toggleTag(slug, { refit = false } = {}) {
+  browserPage = 0;
   if (state.tagsSelected.has(slug)) state.tagsSelected.delete(slug);
   else state.tagsSelected.add(slug);
   refresh({ refit });
@@ -718,6 +730,8 @@ function openTags(open) {
 }
 
 function resetFilters() {
+  document.querySelector("#cluster-search").value = "";
+  browserPage = 0;
   state.query = "";
   state.tagQuery = "";
   tagSearchEl.value = "";
@@ -758,6 +772,7 @@ function buildTagList() {
 }
 
 function bind() {
+  bindBrowser();
   searchEl.addEventListener("input", () => {
     state.query = searchEl.value;
     refresh({ refit: true });
@@ -911,7 +926,7 @@ function bind() {
   }, { passive: false });
 
   document.addEventListener("keydown", (event) => {
-    const typing = event.target.matches("input, textarea");
+    const typing = event.target.matches("input, textarea, select, button, a, [contenteditable]");
     if (event.key === "/" && !typing) {
       event.preventDefault();
       searchEl.focus();
@@ -923,7 +938,7 @@ function bind() {
       hideTooltip();
       draw();
     }
-    if (typing) return;
+    if (typing || state.view !== "map") return;
     if (event.key === "+" || event.key === "=") zoomAt(state.width / 2, state.height / 2, 1.18);
     if (event.key === "-" || event.key === "_") zoomAt(state.width / 2, state.height / 2, 1 / 1.18);
     if (event.key === "0") fit(state.highlighted.length ? state.highlighted : state.base);

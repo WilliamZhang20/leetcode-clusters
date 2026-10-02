@@ -18,6 +18,14 @@ python3 -m http.server 5173
 
 Open [http://localhost:5173](http://localhost:5173). Fetching `data/problems.json` needs HTTP, so opening `index.html` directly from disk will not load the map.
 
+## Browse clusters and problems
+
+The default **Clusters** view is a searchable directory of every topic tag. Each card shows the number of matching problems and an Easy/Medium/Hard breakdown. Sort by most problems, smallest clusters, name, or number of Hard problems. Counts follow the title search, difficulty switches, and selected-tag intersection/union.
+
+Click a card to open its members in **Problems**. Sort by problem number, title, or difficulty; the list displays 50 problems per page. Titles open LeetCode, topic chips open that cluster, and **Details** shows similar problems in the existing detail panel. Remove individual filters using the chips above the list, or combine them in the tag sidebar. **Show on map** switches to the map and focuses the inspected problem.
+
+The **Map** tab preserves the original interactive visualization. All three views share filters. View choice and sort order are included in the shareable URL hash. On mobile, the Tags button opens the filter sidebar.
+
 ## How to read the map
 
 - **Color** is difficulty: green Easy, amber Medium, rose Hard.
@@ -129,6 +137,7 @@ The public URL is [https://williamzhang20.github.io/leetcode-clusters/](https://
 index.html                     page
 css/styles.css                 layout and theme
 js/app.js                      map, filters, hover, and links
+js/browser.js                  cluster directory and paginated problem list
 data/problems.json             full problemset, similarity, and positions
 scripts/scrape_and_compute.py  scrape LeetCode and compute the layout
 scripts/validate_dataset.py    sanity checks used locally and in Actions
