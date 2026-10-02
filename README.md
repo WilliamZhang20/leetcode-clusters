@@ -20,7 +20,7 @@ Open [http://localhost:5173](http://localhost:5173). Fetching `data/problems.jso
 
 ## Browse spatial clusters and problems
 
-The default **Clusters** view groups nearby bubbles using the map's precomputed `x`/`y` coordinates. **Grouping distance** controls the threshold in map units, independent of zoom. Two problems within that distance connect; connected components of at least three problems become clusters. This is single-linkage clustering: members can connect through a chain, so the threshold is not a maximum cluster diameter. Singletons and pairs are listed separately under **Ungrouped problems**.
+The page opens in **Map** by default. The **Clusters** tab groups nearby bubbles using the map's precomputed `x`/`y` coordinates. **Grouping distance** controls the threshold in map units, independent of zoom. Two problems within that distance connect; connected components of at least three problems become clusters. This is single-linkage clustering: members can connect through a chain, so the threshold is not a maximum cluster diameter. Singletons and pairs are listed separately under **Ungrouped problems**.
 
 The default distance is 18, which produces 255 spatial clusters in the current snapshot. Smaller thresholds tighten groups; larger thresholds merge neighborhoods. Topic names describe each group using tags enriched relative to the whole dataset; they do not determine membership, and these groups are not curated solution-pattern classifications. IDs use the lowest problem number in the group. Each card includes a miniature map and sample titles to distinguish groups with similar topic labels.
 

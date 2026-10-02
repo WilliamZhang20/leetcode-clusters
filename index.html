@@ -64,11 +64,11 @@
 
     <main id="browser-panel">
       <nav class="view-tabs" aria-label="Browse view">
-        <button type="button" data-view="clusters" aria-pressed="true">Clusters</button>
+        <button type="button" data-view="clusters" aria-pressed="false">Clusters</button>
         <button type="button" data-view="problems" aria-pressed="false">Problems</button>
-        <button type="button" data-view="map" aria-pressed="false">Map</button>
+        <button type="button" data-view="map" aria-pressed="true">Map</button>
       </nav>
-      <section id="directory-panel" aria-label="Cluster directory">
+      <section id="directory-panel" aria-label="Cluster directory" hidden>
         <div class="browser-heading"><div><p class="eyebrow">EXPLORE NEARBY PROBLEMS</p><h2>Explore the clusters</h2><p class="hint">Nearby bubbles form a cluster. Open a group to browse its members or locate it on the map.</p></div>
           <label>Minimum total group size <input id="cluster-min-size" type="number" min="3" step="1" value="6" /></label>
           <label>Sort clusters <select id="cluster-sort"><option value="count">Most problems</option><option value="name">Name A–Z</option><option value="hard">Most Hard problems</option><option value="small">Smallest clusters</option></select></label>
@@ -87,7 +87,7 @@
         <p id="list-empty" class="hint" hidden>No problems match these filters. Try clearing tags or changing the search.</p>
         <div class="pagination"><button id="page-prev" type="button" class="ghost">Previous</button><span id="page-label" aria-live="polite"></span><button id="page-next" type="button" class="ghost">Next</button></div>
       </section>
-    <section id="map-panel" hidden>
+    <section id="map-panel">
       <canvas id="view" aria-label="Map of LeetCode problems. Each bubble is a problem, colored by difficulty. Nearby bubbles share topic tags."></canvas>
       <p id="status" class="hud status" aria-live="polite"></p>
       <div class="hud legend-card">

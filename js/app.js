@@ -49,7 +49,7 @@ const state = {
   spatialClusters: [],
   spatialById: new Map(),
   spatialMembership: new Map(),
-  view: "clusters",
+  view: "map",
   clusterSort: "count",
   problemSort: "id",
   query: "",
@@ -151,7 +151,7 @@ function writeHash() {
   if (state.minGroupSize !== 6) params.set("minSize", state.minGroupSize);
   if (state.clusterDistance !== 18) params.set("distance", state.clusterDistance);
   if (state.clusterId) params.set("cluster", state.clusterId);
-  if (state.view !== "clusters") params.set("view", state.view);
+  if (state.view !== "map") params.set("view", state.view);
   if (state.clusterSort !== "count") params.set("cs", state.clusterSort);
   if (state.problemSort !== "id") params.set("ps", state.problemSort);
   if (state.query.trim()) params.set("q", state.query.trim());
