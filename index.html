@@ -48,6 +48,7 @@
         <input id="tag-search" type="search" placeholder="Filter tags" autocomplete="off" />
       </label>
       <div class="tag-tools">
+        <button id="clear-cluster" type="button" class="text-btn" hidden>Clear spatial cluster</button>
         <button id="clear-tags" type="button" class="text-btn" hidden>Clear tags</button>
       </div>
       <div id="tag-list" role="group" aria-label="Topic tags"></div>
@@ -55,7 +56,7 @@
         <summary>How similarity works</summary>
         <p>Two problems are similar when their topic tags overlap. The score is Jaccard similarity: shared tags divided by the tags on either problem.</p>
         <p>If they already share a tag and sit in the same difficulty band, the score gets +0.05, capped at 1. Tags decide the grouping. Difficulty is only a nudge.</p>
-        <p>Each tag is a cluster, and a problem belongs to every tag it carries. Tags sit on a ring, ordered so tags that share problems are neighbors. A problem is drawn at the weighted center of its tags. Rarer tags pull harder, so a broad label such as Array does not pile unrelated questions together. Questions whose tags are neighbors land in that part of the ring; questions whose tags are far apart sit between them.</p>
+        <p>Tags are topic filters. The cluster directory groups nearby map bubbles using an adjustable distance threshold. A problem belongs to one spatial group at a given threshold, and can carry several topic tags. Tags sit on a ring, ordered so tags that share problems are neighbors. A problem is drawn at the weighted center of its tags. Rarer tags pull harder, so a broad label such as Array does not pile unrelated questions together. Questions whose tags are neighbors land in that part of the ring; questions whose tags are far apart sit between them.</p>
         <p>A line is a high-scoring pair. Lines are drawn for the bubble under the pointer, and among the problems on screen when that neighborhood is small enough to read.</p>
       </details>
       <p id="snapshot" class="footnote"></p>
@@ -68,19 +69,21 @@
         <button type="button" data-view="map" aria-pressed="false">Map</button>
       </nav>
       <section id="directory-panel" aria-label="Cluster directory">
-        <div class="browser-heading"><div><p class="eyebrow">FIND YOUR NEXT PATTERN</p><h2>Explore the clusters</h2><p class="hint">Each topic is a cluster. Open one to browse its problems, or combine tags in the sidebar.</p></div>
+        <div class="browser-heading"><div><p class="eyebrow">EXPLORE NEARBY PROBLEMS</p><h2>Explore the clusters</h2><p class="hint">Nearby bubbles form a cluster. Open a group to browse its members or locate it on the map.</p></div>
+          <label>Minimum total group size <input id="cluster-min-size" type="number" min="3" step="1" value="6" /></label>
           <label>Sort clusters <select id="cluster-sort"><option value="count">Most problems</option><option value="name">Name A–Z</option><option value="hard">Most Hard problems</option><option value="small">Smallest clusters</option></select></label>
         </div>
-        <label class="search"><span class="sr-only">Search clusters</span><input id="cluster-search" type="search" placeholder="Find a cluster, e.g. sliding window" /></label>
+        <div class="distance-control"><label for="cluster-distance">Grouping distance <output id="distance-value" for="cluster-distance">18</output></label><input id="cluster-distance" type="range" min="8" max="120" step="1" value="18" /><p class="hint">Smaller = tighter groups. Larger = merged neighborhoods. Bubbles connect when their map distance is within this threshold; connected chains form a group. Groups need at least 3 problems. Zoom does not change membership.</p></div>
+        <label class="search"><span class="sr-only">Search clusters</span><input id="cluster-search" type="search" placeholder="Search cluster topics or member titles" /></label>
         <p id="cluster-summary" class="hint" aria-live="polite"></p>
         <div id="cluster-cards"></div>
       </section>
       <section id="problems-panel" aria-label="Problem list" hidden>
-        <div class="browser-heading"><div><p class="eyebrow">ONE PATTERN, MANY PROBLEMS</p><h2 id="list-title">All problems</h2><p id="list-summary" class="hint" aria-live="polite"></p></div>
+        <div class="browser-heading"><div><p class="eyebrow">BROWSE THE NEIGHBORHOOD</p><h2 id="list-title">All problems</h2><p id="list-summary" class="hint" aria-live="polite"></p></div>
           <label>Sort problems <select id="problem-sort"><option value="id">Problem number</option><option value="title">Title A–Z</option><option value="difficulty">Easy → Hard</option><option value="hard">Hard → Easy</option></select></label>
         </div>
         <div id="selection-chips" class="chip-row"></div>
-        <div class="table-scroll"><table class="problem-table"><thead><tr><th scope="col">#</th><th scope="col">Problem</th><th scope="col">Difficulty</th><th scope="col">Clusters</th><th scope="col">Explore</th></tr></thead><tbody id="problem-rows"></tbody></table></div>
+        <div class="table-scroll"><table class="problem-table"><thead><tr><th scope="col">#</th><th scope="col">Problem</th><th scope="col">Difficulty</th><th scope="col">Topic tags</th><th scope="col">Explore</th></tr></thead><tbody id="problem-rows"></tbody></table></div>
         <p id="list-empty" class="hint" hidden>No problems match these filters. Try clearing tags or changing the search.</p>
         <div class="pagination"><button id="page-prev" type="button" class="ghost">Previous</button><span id="page-label" aria-live="polite"></span><button id="page-next" type="button" class="ghost">Next</button></div>
       </section>
@@ -133,6 +136,7 @@
         <div id="detail-tags" class="chip-row"></div>
         <div class="detail-actions">
           <a id="detail-open" target="_blank" rel="noopener noreferrer">Open on LeetCode</a>
+          <button id="detail-cluster" type="button" class="ghost">Browse nearby cluster</button>
           <button id="detail-focus" type="button" class="ghost">Show on map</button>
         </div>
         <h3>Closest problems</h3>
@@ -143,6 +147,7 @@
 
     <div id="scrim" hidden></div>
   </div>
+  <script src="js/spatial-clusters.js"></script>
   <script src="js/browser.js"></script>
   <script src="js/app.js"></script>
 </body>

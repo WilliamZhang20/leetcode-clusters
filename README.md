@@ -18,13 +18,17 @@ python3 -m http.server 5173
 
 Open [http://localhost:5173](http://localhost:5173). Fetching `data/problems.json` needs HTTP, so opening `index.html` directly from disk will not load the map.
 
-## Browse clusters and problems
+## Browse spatial clusters and problems
 
-The default **Clusters** view is a searchable directory of every topic tag. Each card shows the number of matching problems and an Easy/Medium/Hard breakdown. Sort by most problems, smallest clusters, name, or number of Hard problems. Counts follow the title search, difficulty switches, and selected-tag intersection/union.
+The default **Clusters** view groups nearby bubbles using the map's precomputed `x`/`y` coordinates. **Grouping distance** controls the threshold in map units, independent of zoom. Two problems within that distance connect; connected components of at least three problems become clusters. This is single-linkage clustering: members can connect through a chain, so the threshold is not a maximum cluster diameter. Singletons and pairs are listed separately under **Ungrouped problems**.
 
-Click a card to open its members in **Problems**. Sort by problem number, title, or difficulty; the list displays 50 problems per page. Titles open LeetCode, topic chips open that cluster, and **Details** shows similar problems in the existing detail panel. Remove individual filters using the chips above the list, or combine them in the tag sidebar. **Show on map** switches to the map and focuses the inspected problem.
+The default distance is 18, which produces 255 spatial clusters in the current snapshot. Smaller thresholds tighten groups; larger thresholds merge neighborhoods. Topic names describe each group using tags enriched relative to the whole dataset; they do not determine membership, and these groups are not curated solution-pattern classifications. IDs use the lowest problem number in the group. Each card includes a miniature map and sample titles to distinguish groups with similar topic labels.
 
-The **Map** tab preserves the original interactive visualization. All three views share filters. View choice and sort order are included in the shareable URL hash. On mobile, the Tags button opens the filter sidebar.
+**Minimum total group size** hides small groups without changing membership. It defaults to 6 (more than 5 members) and accepts any integer of at least 3. The cutoff uses the group’s total membership, not its remaining members after other filters. Search by group topics, member title, or problem number. Sort by matching size, name, or Hard-problem count. Counts follow the title search, difficulty switches, and selected-tag intersection/union. Membership is computed on the full dataset so filters do not silently regroup the map. Cards show matching / total members.
+
+**Browse problems** opens the exact members in a sortable, paginated table. **Show on map** highlights those members and fits the camera to the matching group. In a problem's detail panel, **Browse nearby cluster** opens its spatial group. Topic chips continue to act as broad tag filters. Clear the spatial group independently using the sidebar button or the chip above the list.
+
+View, grouping distance, minimum group size, selected cluster, filters, and sort order are included in the URL hash. Changing the threshold clears the selected cluster because membership may change. On mobile, the Tags button opens the filter sidebar.
 
 ## How to read the map
 
@@ -55,7 +59,7 @@ Each problem keeps its 8 strongest neighbors with a score of at least `0.20`.
 
 ## Clusters and placement
 
-Every topic tag is a cluster. A problem is a member of each tag on its record.
+Topic tags anchor the map layout. A problem is a member of each tag on its record. The directory derives spatial clusters from the finished positions using the grouping-distance threshold above.
 
 Tags sit on a ring. The order is a walk that steps to the most closely related remaining tag, so techniques that co-occur end up side by side. Relatedness for that walk is the overlap coefficient: shared problems divided by the size of the smaller tag. That keeps a specific technique next to the broader topic it usually appears with. Each tag gets an arc long enough for its own problems, so Array has a wide section and a rare tag has a small one.
 
@@ -138,6 +142,7 @@ index.html                     page
 css/styles.css                 layout and theme
 js/app.js                      map, filters, hover, and links
 js/browser.js                  cluster directory and paginated problem list
+js/spatial-clusters.js         distance grouping using a spatial grid
 data/problems.json             full problemset, similarity, and positions
 scripts/scrape_and_compute.py  scrape LeetCode and compute the layout
 scripts/validate_dataset.py    sanity checks used locally and in Actions

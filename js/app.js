@@ -43,6 +43,12 @@ const state = {
   byId: new Map(),
   tags: [],
   tagBySlug: new Map(),
+  clusterDistance: 18,
+  minGroupSize: 6,
+  clusterId: null,
+  spatialClusters: [],
+  spatialById: new Map(),
+  spatialMembership: new Map(),
   view: "clusters",
   clusterSort: "count",
   problemSort: "id",
@@ -93,7 +99,7 @@ function screenToWorld(x, y) {
 function emphasizeMatches() {
   return state.highlighted.length > 0
     && state.highlighted.length <= 40
-    && (state.tagsSelected.size > 0 || state.query.trim() || state.diffs.size < DIFFS.length);
+    && (state.tagsSelected.size > 0 || state.clusterId || state.query.trim() || state.diffs.size < DIFFS.length);
 }
 
 function radiusFor(kind) {
@@ -123,6 +129,11 @@ function readHash() {
   if (["clusters", "problems", "map"].includes(params.get("view"))) state.view = params.get("view");
   if (["count", "name", "hard", "small"].includes(params.get("cs"))) state.clusterSort = params.get("cs");
   if (["id", "title", "difficulty", "hard"].includes(params.get("ps"))) state.problemSort = params.get("ps");
+  const minimum = Number(params.get("minSize"));
+  if (params.has("minSize") && Number.isInteger(minimum) && minimum >= 3) state.minGroupSize = minimum;
+  const distance = Number(params.get("distance"));
+  if (params.has("distance") && Number.isFinite(distance)) state.clusterDistance = clamp(distance, 8, 120);
+  state.clusterId = params.get("cluster") || null;
   if (params.has("q")) state.query = params.get("q") || "";
   if (params.has("diff")) {
     const next = (params.get("diff") || "").split(",").filter((diff) => DIFFS.includes(diff));
@@ -137,6 +148,9 @@ function readHash() {
 
 function writeHash() {
   const params = new URLSearchParams();
+  if (state.minGroupSize !== 6) params.set("minSize", state.minGroupSize);
+  if (state.clusterDistance !== 18) params.set("distance", state.clusterDistance);
+  if (state.clusterId) params.set("cluster", state.clusterId);
   if (state.view !== "clusters") params.set("view", state.view);
   if (state.clusterSort !== "count") params.set("cs", state.clusterSort);
   if (state.problemSort !== "id") params.set("ps", state.problemSort);
@@ -186,12 +200,13 @@ function applyFilters() {
         ? selected.every((tag) => problem.tagSet.has(tag))
         : selected.some((tag) => problem.tagSet.has(tag));
     }
+    if (state.clusterId) match = match && Boolean(state.spatialById.get(state.clusterId)?.ids.has(problem.id));
     if (match) highlighted.push(problem);
     else ghosts.push(problem);
   }
   state.base = base;
-  state.highlighted = selected.length ? highlighted : base;
-  state.ghosts = selected.length ? ghosts : [];
+  state.highlighted = selected.length || state.clusterId ? highlighted : base;
+  state.ghosts = selected.length || state.clusterId ? ghosts : [];
   state.visibleIds = new Set(base.map((problem) => problem.id));
 }
 
@@ -221,6 +236,7 @@ function describeSelection() {
   else if (query && tags.length) text = `${count.toLocaleString()} match “${query}” in ${tags.join(joiner)}`;
   else if (tags.length) text = `${count.toLocaleString()} in ${tags.join(joiner)}`;
   else if (query) text = `${count.toLocaleString()} match “${query}”`;
+  else if (state.clusterId) text = `${count.toLocaleString()} in ${state.spatialById.get(state.clusterId)?.name || "spatial cluster"}`;
   else if (diffNote) text = `${count.toLocaleString()} ${diffNote} problems`;
   else text = `${state.problems.length.toLocaleString()} problems`;
   if (diffNote && state.diffs.size > 0 && (query || tags.length)) text += ` · ${diffNote}`;
@@ -732,6 +748,7 @@ function openTags(open) {
 function resetFilters() {
   document.querySelector("#cluster-search").value = "";
   browserPage = 0;
+  state.clusterId = null;
   state.query = "";
   state.tagQuery = "";
   tagSearchEl.value = "";
@@ -994,6 +1011,7 @@ async function main() {
     ? when.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
     : "unknown date";
   snapshotEl.textContent = `${state.problems.length.toLocaleString()} problems · snapshot ${whenText}. Titles and tags come from the public LeetCode problemset. Not affiliated with LeetCode.`;
+  rebuildSpatialClusters();
   buildGrid();
   buildTagList();
   loadingEl.hidden = true;
