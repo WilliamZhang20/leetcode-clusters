@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="See every LeetCode problem grouped by shared topic tags. Overlapping tags sit between clusters." />
+  <title>LeetCode Clusters</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='10' cy='18' r='6' fill='%233ddc97'/%3E%3Ccircle cx='20' cy='11' r='5' fill='%23ffc14d'/%3E%3Ccircle cx='23' cy='21' r='5' fill='%23ff6b81'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div>
+        <h1>LeetCode Clusters</h1>
+        <p>Every problem, placed by shared topic tags. A question with several tags sits between those clusters.</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <label class="search">
+        <span class="sr-only">Search by title or number</span>
+        <input id="search" type="search" placeholder="Search title or number" autocomplete="off" enterkeyhint="search" />
+      </label>
+      <div class="diff-group" role="group" aria-label="Difficulty">
+        <button type="button" data-diff="Easy" aria-pressed="true"><span class="dot easy"></span>Easy <span class="count" id="count-easy"></span></button>
+        <button type="button" data-diff="Medium" aria-pressed="true"><span class="dot medium"></span>Medium <span class="count" id="count-medium"></span></button>
+        <button type="button" data-diff="Hard" aria-pressed="true"><span class="dot hard"></span>Hard <span class="count" id="count-hard"></span></button>
+      </div>
+      <button id="reset" type="button" class="ghost">Reset</button>
+      <button id="tags-toggle" type="button" class="mobile-only">Tags</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <aside id="tags-panel">
+      <div class="panel-head">
+        <h2>Tags</h2>
+        <button id="tags-close" type="button" class="ghost mobile-only">Close</button>
+      </div>
+      <p class="hint">Select tags to highlight overlap. Match all shows the intersection; match any shows the union. Other problems stay on the map, dimmed.</p>
+      <div class="segment" role="group" aria-label="How selected tags combine">
+        <button id="mode-all" type="button" aria-pressed="true">Match all</button>
+        <button id="mode-any" type="button" aria-pressed="false">Match any</button>
+      </div>
+      <label class="search tag-search">
+        <span class="sr-only">Filter tags</span>
+        <input id="tag-search" type="search" placeholder="Filter tags" autocomplete="off" />
+      </label>
+      <div class="tag-tools">
+        <button id="clear-tags" type="button" class="text-btn" hidden>Clear tags</button>
+      </div>
+      <div id="tag-list" role="group" aria-label="Topic tags"></div>
+      <details class="how">
+        <summary>How similarity works</summary>
+        <p>Two problems are similar when their topic tags overlap. The score is Jaccard similarity: shared tags divided by the tags on either problem.</p>
+        <p>If they already share a tag and sit in the same difficulty band, the score gets +0.05, capped at 1. Tags decide the grouping. Difficulty is only a nudge.</p>
+        <p>Each tag is a cluster, and a problem belongs to every tag it carries. Tags sit on a ring, ordered so tags that share problems are neighbors. A problem is drawn at the weighted center of its tags. Rarer tags pull harder, so a broad label such as Array does not pile unrelated questions together. Questions whose tags are neighbors land in that part of the ring; questions whose tags are far apart sit between them.</p>
+        <p>A line is a high-scoring pair. Lines are drawn for the bubble under the pointer, and among the problems on screen when that neighborhood is small enough to read.</p>
+      </details>
+      <p id="snapshot" class="footnote"></p>
+    </aside>
+
+    <section id="map-panel">
+      <canvas id="view" aria-label="Map of LeetCode problems. Each bubble is a problem, colored by difficulty. Nearby bubbles share topic tags."></canvas>
+      <p id="status" class="hud status" aria-live="polite"></p>
+      <div class="hud legend-card">
+        <ul class="legend">
+          <li><span class="dot easy"></span> Easy</li>
+          <li><span class="dot medium"></span> Medium</li>
+          <li><span class="dot hard"></span> Hard</li>
+          <li><span class="dot dim"></span> Outside the tag selection</li>
+        </ul>
+        <label class="check">
+          <input id="links-toggle" type="checkbox" checked />
+          Similarity links
+        </label>
+      </div>
+      <div class="hud zoom">
+        <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+        <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+        <button id="zoom-fit" type="button">Fit</button>
+      </div>
+      <div id="empty" class="empty" hidden>
+        <div class="card">
+          <h2 id="empty-title">Nothing to show</h2>
+          <p id="empty-copy">No problems match these filters.</p>
+          <button id="empty-reset" type="button">Reset filters</button>
+        </div>
+      </div>
+      <div id="tooltip" class="tooltip" hidden></div>
+      <div id="loading" class="loading">
+        <div class="card">Loading every LeetCode problem…</div>
+      </div>
+    </section>
+
+    <aside id="detail-panel">
+      <div id="detail-empty">
+        <h2>Problem details</h2>
+        <p>Hover a bubble for its title, difficulty, and tags. Click it to open the problem on LeetCode. On a phone, tap once to inspect it and tap the same bubble again to open it.</p>
+      </div>
+      <div id="detail-body" hidden>
+        <div class="panel-head">
+          <p id="detail-kicker"></p>
+          <button id="detail-close" type="button" class="ghost mobile-only">Close</button>
+        </div>
+        <h2 id="detail-title"></h2>
+        <p id="detail-hidden-note" class="hint" hidden>Hidden by the current search or difficulty filter.</p>
+        <div id="detail-tags" class="chip-row"></div>
+        <div class="detail-actions">
+          <a id="detail-open" target="_blank" rel="noopener noreferrer">Open on LeetCode</a>
+          <button id="detail-focus" type="button" class="ghost">Show on map</button>
+        </div>
+        <h3>Closest problems</h3>
+        <p class="hint">Ranked by tag overlap. The percentage is the similarity score, followed by the tags they share.</p>
+        <ul id="detail-similar"></ul>
+      </div>
+    </aside>
+
+    <div id="scrim" hidden></div>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>
