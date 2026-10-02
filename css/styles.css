@@ -523,3 +523,40 @@ canvas.is-pointing { cursor: pointer; }
   .diff-group button .count { display: none; }
   .legend li:last-child { display: none; }
 }
+
+/* Directory and list share the map's filters and detail panel. */
+[hidden] { display: none !important; }
+#browser-panel { min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+.view-tabs { display: flex; gap: 6px; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+.view-tabs button { background: transparent; border: 1px solid transparent; border-radius: 8px; padding: 9px 18px; color: var(--muted); }
+.view-tabs button[aria-pressed="true"] { color: var(--accent); background: #202d4b; border-color: var(--line); }
+#directory-panel, #problems-panel { overflow: auto; padding: 24px; flex: 1; }
+#map-panel { flex: 1; }
+.browser-heading { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+.browser-heading h2 { font-size: 28px; letter-spacing: -0.035em; }
+.eyebrow { font-size: 10px; letter-spacing: 0.15em; color: var(--accent); margin: 0 0 8px; }
+.browser-heading label { font-size: 12px; color: var(--muted); display: grid; gap: 6px; }
+select { font: inherit; color: var(--text); background: var(--bg-elev); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+#cluster-search { width: min(420px, 100%); border-radius: 9px; }
+#cluster-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 14px; }
+.cluster-card { text-align: left; background: var(--bg-elev); border: 1px solid var(--line); border-top: 3px solid var(--cluster-color); border-radius: 12px; padding: 18px; color: var(--text); transition: background 120ms; }
+.cluster-card:hover { background: #1d2741; }
+.cluster-card h3 { margin: 0; font-size: 17px; }
+.cluster-count { margin: 10px 0 14px; font-size: 24px; letter-spacing: -0.03em; }
+.difficulty-bar { display: flex; height: 5px; border-radius: 6px; overflow: hidden; background: var(--line); }
+.difficulty-bar .easy { background: var(--easy); }.difficulty-bar .medium { background: var(--medium); }.difficulty-bar .hard { background: var(--hard); }
+.breakdown { display: flex; gap: 9px; font-size: 11px; margin: 10px 0 20px; }
+.easy { color: var(--easy); }.medium { color: var(--medium); }.hard { color: var(--hard); }
+.cluster-link { color: var(--accent); font-size: 12px; }
+.table-scroll { overflow-x: auto; margin-top: 18px; }
+.problem-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+.problem-table th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+.problem-table th, .problem-table td { border-bottom: 1px solid var(--line); padding: 13px 10px; }
+.problem-table td:nth-child(2) { min-width: 175px; }
+.problem-table a { color: var(--text); text-decoration: none; }.problem-table a:hover { color: var(--accent); text-decoration: underline; }
+.problem-table .chip-row { min-width: 140px; }
+.premium { color: var(--muted); font-size: 10px; }
+.pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 20px; font-size: 12px; color: var(--muted); }
+button:disabled { opacity: 0.35; cursor: default; }
+@media (max-width: 1200px) and (min-width: 981px) { .workspace { grid-template-columns: 235px minmax(0, 1fr) 260px; } }
+@media (max-width: 640px) { #directory-panel, #problems-panel { padding: 16px; } .browser-heading h2 { font-size: 24px; } .view-tabs { padding: 10px 16px; } }

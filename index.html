@@ -61,7 +61,30 @@
       <p id="snapshot" class="footnote"></p>
     </aside>
 
-    <section id="map-panel">
+    <main id="browser-panel">
+      <nav class="view-tabs" aria-label="Browse view">
+        <button type="button" data-view="clusters" aria-pressed="true">Clusters</button>
+        <button type="button" data-view="problems" aria-pressed="false">Problems</button>
+        <button type="button" data-view="map" aria-pressed="false">Map</button>
+      </nav>
+      <section id="directory-panel" aria-label="Cluster directory">
+        <div class="browser-heading"><div><p class="eyebrow">FIND YOUR NEXT PATTERN</p><h2>Explore the clusters</h2><p class="hint">Each topic is a cluster. Open one to browse its problems, or combine tags in the sidebar.</p></div>
+          <label>Sort clusters <select id="cluster-sort"><option value="count">Most problems</option><option value="name">Name A–Z</option><option value="hard">Most Hard problems</option><option value="small">Smallest clusters</option></select></label>
+        </div>
+        <label class="search"><span class="sr-only">Search clusters</span><input id="cluster-search" type="search" placeholder="Find a cluster, e.g. sliding window" /></label>
+        <p id="cluster-summary" class="hint" aria-live="polite"></p>
+        <div id="cluster-cards"></div>
+      </section>
+      <section id="problems-panel" aria-label="Problem list" hidden>
+        <div class="browser-heading"><div><p class="eyebrow">ONE PATTERN, MANY PROBLEMS</p><h2 id="list-title">All problems</h2><p id="list-summary" class="hint" aria-live="polite"></p></div>
+          <label>Sort problems <select id="problem-sort"><option value="id">Problem number</option><option value="title">Title A–Z</option><option value="difficulty">Easy → Hard</option><option value="hard">Hard → Easy</option></select></label>
+        </div>
+        <div id="selection-chips" class="chip-row"></div>
+        <div class="table-scroll"><table class="problem-table"><thead><tr><th scope="col">#</th><th scope="col">Problem</th><th scope="col">Difficulty</th><th scope="col">Clusters</th><th scope="col">Explore</th></tr></thead><tbody id="problem-rows"></tbody></table></div>
+        <p id="list-empty" class="hint" hidden>No problems match these filters. Try clearing tags or changing the search.</p>
+        <div class="pagination"><button id="page-prev" type="button" class="ghost">Previous</button><span id="page-label" aria-live="polite"></span><button id="page-next" type="button" class="ghost">Next</button></div>
+      </section>
+    <section id="map-panel" hidden>
       <canvas id="view" aria-label="Map of LeetCode problems. Each bubble is a problem, colored by difficulty. Nearby bubbles share topic tags."></canvas>
       <p id="status" class="hud status" aria-live="polite"></p>
       <div class="hud legend-card">
@@ -94,6 +117,7 @@
       </div>
     </section>
 
+    </main>
     <aside id="detail-panel">
       <div id="detail-empty">
         <h2>Problem details</h2>
@@ -119,6 +143,7 @@
 
     <div id="scrim" hidden></div>
   </div>
+  <script src="js/browser.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
